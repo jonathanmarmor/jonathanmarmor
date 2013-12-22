@@ -73,11 +73,7 @@ DURATION_SPELLINGS = {
     4.0: '1',
     3.5: '2..',
     3.0: '2.',
-
-    2.5: '2.',  # This is half note tied to eighth note.
-                # Can't be written with a single symbol, so temporarily
-                # using dotted half which is the wrong duration.
-
+    2.5: '2.',  # TODO  # This is half note tied to eighth note. Can't be written with a single symbol, so temporarily using dotted half which is the wrong duration.
     2.0: '2',
     1.75: '4..',
     1.5: '4.',

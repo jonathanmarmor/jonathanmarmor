@@ -6,7 +6,6 @@ For any six instruments that can play the written pitches.
 
 import collections
 
-from musicob.utils.pitch import Pitch
 from musicob.notation import Note
 
 
