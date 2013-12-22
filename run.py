@@ -1,5 +1,7 @@
 #!/usr/bin/env python2.7
 
+import os
+
 from musicob.notation import Instrument, Movement, Piece
 from jonathanmarmor import make_music
 import config
@@ -72,7 +74,10 @@ def notate(music):
 
     piece.movements = [mv]
 
-    path = '/Users/jmarmor/dropbox/jmmusic/jonathanmarmor/output'
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, 'output')
+    if not os.path.exists(path):
+        os.mkdir(path)
 
     piece.write(path, yaml=False, ly=True, pdf=True, midi=True,
         parts=False, score=True)
