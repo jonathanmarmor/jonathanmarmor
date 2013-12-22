@@ -62,7 +62,7 @@ import yaml
 import datetime
 
 import templates
-import ly2pdf
+from ly2pdf import ly2pdf
 from utils.pitch import Pitch
 
 
@@ -215,7 +215,7 @@ class Piece(object):
         MakeLilyPond(self, ly_dir, score, parts, midi)
 
     def write_pdf(self, ly_dir, pdf_dir, score=True, parts=True):
-        ly2pdf.LilyPondToPdf(ly_dir, pdf_dir, self.filename, score, parts)
+        ly2pdf(ly_dir, pdf_dir, self.filename, score, parts)
 
 
 class Movement(object):

@@ -17,43 +17,57 @@ import subprocess
 import os
 
 
-class LilyPondToPdf(object):
-    def __init__(self, ly_dir, pdf_dir, piece_filename, score=True, parts=False):
-        if not os.path.isdir(pdf_dir):
-            os.mkdir(pdf_dir)
-        input_filenames = os.listdir(ly_dir)
-        if score:
-            i = input_filenames.index('{}.ly'.format(piece_filename))
-            score_filename = input_filenames.pop(i)
-            score_path = os.path.join(ly_dir, score_filename)
-            self.run_lilypond(score_path, pdf_dir)
-        if parts:
-            parts_filenames = [f for f in input_filenames if f[-3:] == '.ly']
-            for part_filename in parts_filenames:
-                part_path = os.path.join(ly_dir, part_filename)
-                self.run_lilypond(part_path, pdf_dir)
-        self.cleanup(pdf_dir)
+def ly2pdf(ly_dir, pdf_dir, piece_filename, score=True, parts=False):
+    if not os.path.isdir(pdf_dir):
+        os.mkdir(pdf_dir)
+    input_filenames = os.listdir(ly_dir)
+    if score:
+        ly_filename = input_filenames.index('{}.ly'.format(piece_filename))
+        score_filename = input_filenames.pop(ly_filename)
+        score_path = os.path.join(ly_dir, score_filename)
+        run_lilypond(score_path, pdf_dir)
+    if parts:
+        parts_filenames = [f for f in input_filenames if f[-3:] == '.ly']
+        for part_filename in parts_filenames:
+            part_path = os.path.join(ly_dir, part_filename)
+            run_lilypond(part_path, pdf_dir)
+    cleanup(pdf_dir)
 
-    def run_lilypond(self, in_file, pdf_dir):
-        process = subprocess.Popen(['lilypond', '--output={}'.format(pdf_dir), in_file], shell=False)
-        process.wait()
 
-    def cleanup(self, pdf_dir):
-        filenames = [f for f in os.listdir(pdf_dir) if f[-3:] == '.ps']
-        for filename in filenames:
-            file_to_delete = os.path.join(pdf_dir, filename)
-            subprocess.Popen(['rm', file_to_delete], shell=False)
+def run_lilypond(in_file, pdf_dir):
+    process = subprocess.Popen(
+        ['lilypond', '--output={}'.format(pdf_dir), in_file],
+        shell=False)
+    process.wait()
 
-if __name__ == '__main__':
+
+def cleanup(pdf_dir):
+    filenames = [f for f in os.listdir(pdf_dir) if f[-3:] == '.ps']
+    for filename in filenames:
+        to_delete = os.path.join(pdf_dir, filename)
+        subprocess.Popen(['rm', to_delete], shell=False)
+
+def cli():
     import argparse
-    parser = argparse.ArgumentParser(description='Creates PDF music notataion from LilyPond files.',
-                                     epilog='Default makes score but not parts')
+    parser = argparse.ArgumentParser(
+        description='Creates PDF music notataion from LilyPond files.',
+        epilog='Default makes score but not parts')
 
-    parser.add_argument('ly_dir', help='path to input directory containing lilypond files')
-    parser.add_argument('pdf_dir', help='path to output directory for pdf files')
-    parser.add_argument('piece_filename', help='the filename of the piece')
-    parser.add_argument('-s', '--score', action='store_true', dest='score', default=True, help='make the score pdf file')
-    parser.add_argument('-p', '--parts', action='store_true', dest='parts', help='make the parts lilypond files')
+    parser.add_argument('ly_dir',
+        help='path to input directory containing lilypond files')
+    parser.add_argument('pdf_dir',
+        help='path to output directory for pdf files')
+    parser.add_argument('piece_filename',
+        help='the filename of the piece')
+    parser.add_argument('-s', '--score', action='store_true', dest='score',
+        default=True, help='make the score pdf file')
+    parser.add_argument('-p', '--parts', action='store_true', dest='parts',
+        help='make the parts lilypond files')
     args = parser.parse_args()
 
-    LilyPondToPdf(args.ly_dir, args.pdf_dir, args.piece_filename, score=args.score, parts=args.parts)
+    ly2pdf(args.ly_dir, args.pdf_dir, args.piece_filename, score=args.score,
+        parts=args.parts)
+
+
+if __name__ == '__main__':
+    cli()
