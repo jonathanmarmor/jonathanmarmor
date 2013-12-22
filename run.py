@@ -1,16 +1,16 @@
 #!/usr/bin/env python2.7
 
 import os
+import json
 
 from notation import Instrument, Movement, Piece
+# import synth
 from jonathanmarmor import make_music
 import config
 
 
 def run(play_synth, make_notation):
     music = make_music(config)
-
-    write_json(music)
 
     # if play_synth:
     #     synthesize(music, config.tempo_bpm)
@@ -19,8 +19,7 @@ def run(play_synth, make_notation):
         notate(music)
 
 
-def write_json(music):
-    import json
+def write_json(music, path):
     new = {}
     for inst in music:
         new[inst] = {
@@ -30,7 +29,7 @@ def write_json(music):
         for note in music[inst]:
             new[inst]['notes'].append([note.raw_pitches[0].ps, note.raw_duration])
     s = json.dumps(new)
-    f = open('/Users/jmarmor/Desktop/jonathanmarmor.json', 'w')
+    f = open('{}/jonathanmarmor.json'.format(path), 'w')
     f.write(s)
 
 
@@ -78,8 +77,10 @@ def notate(music):
     if not os.path.exists(path):
         os.mkdir(path)
 
-    piece.write(path, yaml=False, ly=True, pdf=True, midi=True,
+    target = piece.write(path, yaml=False, ly=True, pdf=True, midi=True,
         parts=False, score=True)
+
+    write_json(music, target['target'])
 
 
 if __name__ == '__main__':

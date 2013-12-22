@@ -143,7 +143,9 @@ class Piece(object):
         target = os.path.join(target, timestamp)
         os.mkdir(target)
 
-        paths = {}
+        paths = {
+            'target': target
+        }
         if yaml:
             yaml_dir = os.path.join(target, 'yaml')
             os.mkdir(yaml_dir)
