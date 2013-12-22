@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 from musicob.notation import Instrument, Movement, Piece
 from jonathanmarmor import make_music
 import config
