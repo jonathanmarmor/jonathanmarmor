@@ -6,7 +6,7 @@ For any six instruments that can play the written pitches.
 
 import collections
 
-from musicob.notation import Note
+from notation import Note
 
 
 def copy_note(old):

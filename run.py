@@ -2,10 +2,9 @@
 
 import os
 
-from musicob.notation import Instrument, Movement, Piece
+from notation import Instrument, Movement, Piece
 from jonathanmarmor import make_music
 import config
-# import synth
 
 
 def run(play_synth, make_notation):

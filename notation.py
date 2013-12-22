@@ -63,7 +63,7 @@ import datetime
 
 import templates
 from ly2pdf import ly2pdf
-from utils.pitch import Pitch
+from pitch import Pitch
 
 
 DURATION_SPELLINGS = {
@@ -351,7 +351,6 @@ class MakeLilyPond(object):
         score_music_dir = os.path.join(ly_dir, 'score_music')
         os.mkdir(score_music_dir)
         for movement in piece.movements:
-            mv_num = movement.number
             movement_dir = os.path.join(score_music_dir, movement.folder)
             os.mkdir(movement_dir)
             movement_string = templates.movement.format(
