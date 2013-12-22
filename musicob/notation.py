@@ -464,14 +464,15 @@ class MakeLilyPond(object):
 
     def format_grace_note(self, note):
         d = self.get_format_dict(note)
+
+        d['text_spanner_init_tab'] = ''
         if note.text_spanner_start:
             d['text_spanner_init_tab'] = '\t'
-        else:
-            d['text_spanner_init_tab'] = ''
+
+        d['tempo_instruction_init_tab'] = ''
         if note.tempo_instruction:
             d['tempo_instruction_init_tab'] = '\t'
-        else:
-            d['tempo_instruction_init_tab'] = ''
+
         d['pitches_tab'] = '\t'
         return templates.grace_note.format(**d)
 
@@ -485,43 +486,40 @@ class MakeLilyPond(object):
     def get_format_dict(self, note):
         d = {}
 
+        d['rehearsal'] = ''
         if note.rehearsal_mark:
             d['rehearsal'] = templates.rehearsal.format(rehearsal_text=note.rehearsal_mark)
-        else:
-            d['rehearsal'] = ''
 
+        d['bar'] = ''
         if note.bar:
             d['bar'] = templates.bar.format(bar_type=note.bar_type, bar_number=note.bar)
-        else:
-            d['bar'] = ''
 
+        d['time_signature'] = ''
         if note.time_signature_numerator:
             d['time_signature'] = templates.time_signature.format(
                 numerator=note.time_signature_numerator,
                 denominator=note.time_signature_denominator
             )
-        else:
-            d['time_signature'] = ''
 
+        d['text_spanner_init'] = ''
+        d['start_text_spanner'] = ''
         if note.text_spanner_start:
             d['text_spanner_init'] = templates.text_spanner_init.format(text_spanner_text=note.text_spanner_start)
             d['start_text_spanner'] = templates.start_text_spanner
-        else:
-            d['text_spanner_init'] = ''
-            d['start_text_spanner'] = ''
 
+        d['stop_text_spanner'] = ''
         if note.text_spanner_stop:
             d['stop_text_spanner'] = templates.stop_text_spanner
-        else:
-            d['stop_text_spanner'] = ''
 
+        d['tempo_instruction_init'] = ''
+        d['tempo_instruction'] = ''
         if note.tempo_instruction:
             d['tempo_instruction_init'] = templates.tempo_instruction_init
             d['tempo_instruction'] = templates.tempo_instruction.format(tempo_instruction_text=note.tempo_instruction)
-        else:
-            d['tempo_instruction_init'] = ''
-            d['tempo_instruction'] = ''
 
+        d['grace_notes_init'] = ''
+        d['grace_notes'] = ''
+        d['grace_notes_close'] = ''
         if note.grace_notes:
             d['grace_notes_init'] = templates.grace_notes_init
             grace_list = []
@@ -530,62 +528,49 @@ class MakeLilyPond(object):
                  grace_list.append(grace_string)
             d['grace_notes'] = ''.join(grace_list)
             d['grace_notes_close'] = templates.grace_notes_close
-        else:
-            d['grace_notes_init'] = ''
-            d['grace_notes'] = ''
-            d['grace_notes_close'] = ''
 
         d['pitches'] = note.pitches
         d['duration'] = note.duration
 
+        d['tie'] = ''
         if note.tie:
             d['tie'] = templates.tie
-        else:
-            d['tie'] = ''
 
+        d['beam'] = ''
         if note.beam == 'start':
             d['beam'] = templates.beam_start
         elif note.beam == 'stop':
             d['beam'] = templates.beam_stop
-        else:
-            d['beam'] = ''
 
+        d['slur'] = ''
         if note.slur == 'start':
             d['slur'] = templates.slur_start
         elif note.slur == 'stop':
             d['slur'] = templates.slur_stop
-        else:
-            d['slur'] = ''
 
+        d['articulations'] = ''
         if note.articulations:
             d['articulations'] = self.format_articulations(note.articulations)
-        else:
-            d['articulations'] = ''
 
+        d['dynamic'] = ''
         if note.dynamic:
             d['dynamic'] = templates.dynamic.format(dynamic=note.dynamic)
-        else:
-            d['dynamic'] = ''
 
+        d['fermata'] = ''
         if note.fermata:
             d['fermata'] = templates.fermata
-        else:
-            d['fermata'] = ''
 
+        d['text_above'] = ''
         if note.text_above:
             d['text_above'] = templates.text_above.format(text=note.text_above)
-        else:
-            d['text_above'] = ''
 
+        d['text_below'] = ''
         if note.text_below:
             d['text_below'] = templates.text_below.format(text=note.text_below)
-        else:
-            d['text_below'] = ''
 
+        d['breathe'] = ''
         if note.breathe:
             d['breathe'] = templates.breathe
-        else:
-            d['breathe'] = ''
 
         return d
 
