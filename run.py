@@ -3,6 +3,7 @@
 import os
 import json
 import random
+from collections import Counter
 
 from notation import Instrument, Movement, Piece
 # import synth
@@ -33,8 +34,19 @@ def load_config():
         config.melody = default_melodies['original 6']
     config.melody = [float(n) for n in config.melody]
 
-    starts = random.sample(range(len(config.melody)) , len(config.ensemble))
+    # Set instrument ordinals (eg, violin 1, violin 2)
+    counter = Counter()
+    for i in config.ensemble:
+        counter[i['type']] += 1
+        i['ordinal'] = counter[i['type']]
+    for i in config.ensemble:
+        if counter[i['type']] == 1:
+            del i['ordinal']
 
+    # TODO in the future, need to be able to have more than one inst starting on the same position
+    starts = random.sample(range(len(config.melody)), len(config.ensemble))
+
+    # Flesh out instrument configs from defaults
     config.instruments = []
     for c, i in enumerate(config.ensemble):
         type_ = known_instruments[i['type']]
@@ -43,14 +55,14 @@ def load_config():
         inst = dict(
             full = '{} {}'.format(type_['full'], ordinal) if ordinal else type_['full'],
             short = '{}{}'.format(type_['short'], ordinal) if ordinal else type_['short'],
-            midi = type_['midi'],
+            midi = i.get('midi') or type_['midi'],
 
             # tmp
             start = starts[c],
             init_transposition = i['init_transposition'],
 
-            clef = type_['clef'],
-            notation = type_['notation']
+            clef = i.get('clef') or type_['clef'],
+            notation = i.get('notation') or type_['notation']
         )
         config.instruments.append(inst)
 
