@@ -424,7 +424,10 @@ def make_music(config):
 
     for t in turns:
         start = config.melody.index(round(t[0].raw_pitches[0].ps, 2))
-        instrument = config.instruments_by_start[start]
+
+        instrument = config.instruments_by_start.get(start)
+        if not instrument:
+            continue
         seq = transpose(t, instrument['init_transposition'])
 
         # Grow

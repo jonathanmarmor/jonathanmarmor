@@ -7,30 +7,52 @@ import random
 from notation import Instrument, Movement, Piece
 # import synth
 from jonathanmarmor import make_music
+from known_instruments import known_instruments
 import config
 
 
 # Some default melodies
 default_melodies = {
-    'original': {
-        'six_notes': [79, 85, 82, 77, 73, 75],
-        'five_notes': [79, 82, 77, 73, 75],
-
-        # Harmonic series on G
-        # 9 A +4
-        # 7 F -31
-        # 5 D -14
-        # 3 B +2
-        # 1 G
-        'spectral': [59.02, 64.69, 61.86, 57.04, 52.69, 55.0]
-    },
+    'original 6': [79, 85, 82, 77, 73, 75],
+    'original 5': [79, 82, 77, 73, 75],
+    # Harmonic series on G
+    # 9 A +4
+    # 7 F -31
+    # 5 D -14
+    # 3 B +2
+    # 1 G
+    'spectral': [59.02, 64.69, 61.86, 57.04, 52.69, 55.0],
     'random': [random.uniform(73.0, 85.0) for _ in range(6)]
 }
 
 
 def load_config():
+    if config.melody in default_melodies:
+        config.melody = default_melodies[config.melody]
     if not config.melody:
-        config.melody = default_melodies['original']['five_notes']
+        config.melody = default_melodies['original 6']
+    config.melody = [float(n) for n in config.melody]
+
+    config.instruments = []
+    for i in config.ensemble:
+        type_ = known_instruments[i['type']]
+        ordinal = i.get('ordinal')
+
+        inst = dict(
+            full = '{} {}'.format(type_['full'], ordinal) if ordinal else type_['full'],
+            short = '{}{}'.format(type_['short'], ordinal) if ordinal else type_['short'],
+            midi = type_['midi'],
+
+            # tmp
+            start = i['start'],
+            init_transposition = i['init_transposition'],
+
+            clef = type_['clef'],
+            notation = type_['notation']
+        )
+        config.instruments.append(inst)
+
+
 
     config.instruments_by_start = {i['start']:i for i in config.instruments}
 
@@ -64,6 +86,7 @@ def write_json(music, path):
     s = json.dumps(new)
     f = open('{}/jonathanmarmor.json'.format(path), 'w')
     f.write(s)
+    f.close()
 
 
 # def synthesize(music, bpm):
@@ -85,7 +108,7 @@ def notate(music):
     mv.tempo_bpm = config.tempo_bpm
     mv.instruments = []
 
-    insts = [i for i in config.instruments if i['short'] in ['vln1', 'vln2']]
+    insts = [i for i in config.instruments]
 
     for i in insts:
         inst = Instrument()

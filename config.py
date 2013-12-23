@@ -1,64 +1,50 @@
 '''Configuration for a realization of "Jonathan Marmor."'''
 
-melody = None
-
-# Number of times seq needs to be transposed from
-# original transposition to reach central transposition
-steps = 6
-
-tempo_duration = 4
-tempo_bpm = 200
-
 subtitle = ''
+melody = 'original 5'
+steps = 5
+tempo_duration = 4
+tempo_bpm = 380
+second_movement = False
 
-# in score order top to bottom
-instruments = [
+ensemble = [
     dict(
-        full='Piano',
-        short='pno',
-        midi='acoustic grand',
-        start=5,
-        init_transposition=12 * 2.5,
-        clef='treble'
+        type='violin',
+        ordinal=1,
+
+        # tmp
+        start = 1,  # Or should this be randomly assigned?  Or should some optimal solution be calculated?
+        init_transposition = 12 * 0.5,  # this should be calculated
+
     ),
     dict(
-        full='Guitar 2',
-        short='gtr2',
-        midi='electric bass (pick)',
-        start=3,
-        init_transposition=12 * 1.5,
-        clef='treble'
-    ),
-    dict(
-        full='Violin 1',
-        short='vln1',
-        midi='violin',
-        start=1,
-        init_transposition=12 * 0.5,
-        clef='treble'
-    ),
-    dict(
-        full='Guitar 3',
-        short='gtr3',
-        midi='electric piano 1',
-        start=2,
-        init_transposition=12 * -0.5,
-        clef='treble'
-    ),
-    dict(
-        full='Violin 2',
-        short='vln2',
-        midi='violin',
-        start=0,
-        init_transposition=12 * -1.5,
-        clef='treble'
-    ),
-    dict(
-        full='6-string bass 2',
-        short='bs2',
-        midi='electric guitar (clean)',
-        start=4,
-        init_transposition=12 * -2.5,
-        clef='bass'
+        type='violin',
+        ordinal=2,
+
+        # tmp
+        start = 2,
+        init_transposition = 12 * -1.5,
+
     )
 ]
+
+# instruments = [
+#     dict(
+#         full = 'Violin 1',
+#         short = 'vln1',
+#         midi = 'violin',
+#         start = 1,  # Or should this be randomly assigned?  Or should some optimal solution be calculated?
+#         init_transposition = 12 * 0.5,  # this should be calculated
+#         clef = 'treble',
+#         notation = 'standard'
+#     ),
+#     dict(
+#         full = 'Violin 2',
+#         short = 'vln2',
+#         midi = 'violin',
+#         start = 2,  # Or should this be randomly assigned?  Or should some optimal solution be calculated?
+#         init_transposition = 12 * -1.5,  # this should be calculated
+#         clef = 'treble',
+#         notation = 'standard'
+#     )
+# ]
