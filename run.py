@@ -34,6 +34,51 @@ def load_config():
         config.melody = default_melodies['original 6']
     config.melody = [float(n) for n in config.melody]
 
+    # evaluate registers
+
+    for i in config.ensemble:
+        i['range'] = set(range(int(known_instruments[i['type']]['lowest']), int(known_instruments[i['type']]['highest'] + 1)))
+
+    # find the range shared by all instruments
+    a = config.ensemble[0]['range']
+    shared_range = a.intersection(*[i['range'] for i in config.ensemble[1:]])
+
+    # find interval covered by melody
+    lowest = min(config.melody)
+    highest = max(config.melody)
+    melody_interval = highest - lowest
+
+    # find all possible transpositions of the melody that all instruments can play in unison
+    shared_range_lowest = min(shared_range)
+    shared_range_highest = max(shared_range)
+    shared_range_interval = shared_range_highest - shared_range_lowest
+    if shared_range_interval < melody_interval:
+        raise Exception("These instruments don't have a shared register large enough to accommodate the melody.")
+    wiggle_room = shared_range_interval - melody_interval
+
+    # pick one
+    melody_transposition = random.choice(range(int(wiggle_room)))
+
+    new_melody_lowest = shared_range_lowest + melody_transposition
+    diff = lowest - new_melody_lowest
+
+    config.melody = [p + diff for p in config.melody]
+
+    print config.melody
+
+
+
+
+
+
+    # Find all possible starting transpositions for all instruments
+    # To make this easy, first implement with only tritone transpositions and octaves of that
+
+
+
+
+
+
     # Set instrument ordinals (eg, violin 1, violin 2)
     counter = Counter()
     for i in config.ensemble:
@@ -74,6 +119,8 @@ def load_config():
 
     for i in config.instruments:
         i['interval'] = -(float(i['init_transposition']) / config.steps)
+
+        print i['interval']
 
 
 def run(play_synth, make_notation):
