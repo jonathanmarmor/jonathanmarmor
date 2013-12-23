@@ -2,6 +2,7 @@
 
 import os
 import json
+import random
 
 from notation import Instrument, Movement, Piece
 # import synth
@@ -9,7 +10,39 @@ from jonathanmarmor import make_music
 import config
 
 
+# Some default melodies
+default_melodies = {
+    'original': {
+        'six_notes': [79, 85, 82, 77, 73, 75],
+        'five_notes': [79, 82, 77, 73, 75],
+
+        # Harmonic series on G
+        # 9 A +4
+        # 7 F -31
+        # 5 D -14
+        # 3 B +2
+        # 1 G
+        'spectral': [59.02, 64.69, 61.86, 57.04, 52.69, 55.0]
+    },
+    'random': [random.uniform(73.0, 85.0) for _ in range(6)]
+}
+
+
+def load_config():
+    if not config.melody:
+        config.melody = default_melodies['original']['five_notes']
+
+    config.instruments_by_start = {i['start']:i for i in config.instruments}
+
+    config.instruments_by_short_name = {i['short']:i for i in config.instruments}
+
+    for i in config.instruments:
+        i['interval'] = -(float(i['init_transposition']) / config.steps)
+
+
 def run(play_synth, make_notation):
+    load_config()
+
     music = make_music(config)
 
     # if play_synth:
