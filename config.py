@@ -13,7 +13,7 @@ ensemble = [
         ordinal=1,
 
         # tmp
-        start = 1,  # Or should this be randomly assigned?  Or should some optimal solution be calculated?
+        # start = 1,  # Or should this be randomly assigned?  Or should some optimal solution be calculated?
         init_transposition = 12 * 0.5,  # this should be calculated
 
     ),
@@ -22,7 +22,7 @@ ensemble = [
         ordinal=2,
 
         # tmp
-        start = 2,
+        # start = 2,
         init_transposition = 12 * -1.5,
 
     )

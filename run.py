@@ -33,8 +33,10 @@ def load_config():
         config.melody = default_melodies['original 6']
     config.melody = [float(n) for n in config.melody]
 
+    starts = random.sample(range(len(config.melody)) , len(config.ensemble))
+
     config.instruments = []
-    for i in config.ensemble:
+    for c, i in enumerate(config.ensemble):
         type_ = known_instruments[i['type']]
         ordinal = i.get('ordinal')
 
@@ -44,7 +46,7 @@ def load_config():
             midi = type_['midi'],
 
             # tmp
-            start = i['start'],
+            start = starts[c],
             init_transposition = i['init_transposition'],
 
             clef = type_['clef'],
