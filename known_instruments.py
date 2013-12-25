@@ -9,7 +9,8 @@ known_instruments = dict(
         clef = 'treble',
         notation = 'standard',
         lowest = 24,
-        highest = 96
+        highest = 96,
+        transpose_from_middle_c = 'c'
     ),
     violin = dict(
         full = 'Violin',
@@ -18,7 +19,8 @@ known_instruments = dict(
         clef = 'treble',
         notation = 'standard',
         lowest = 55,
-        highest = 92
+        highest = 92,
+        transpose_from_middle_c = 'c'
     ),
     viola = dict(
         full = 'Viola',
@@ -27,7 +29,8 @@ known_instruments = dict(
         clef = 'alto',
         notation = 'standard',
         lowest = 48,
-        highest = 85
+        highest = 85,
+        transpose_from_middle_c = 'c'
     ),
     cello = dict(
         full = 'Cello',
@@ -36,7 +39,8 @@ known_instruments = dict(
         clef = 'bass',
         notation = 'standard',
         lowest = 36,
-        highest = 73
+        highest = 73,
+        transpose_from_middle_c = 'c'
     ),
     # contrabass = dict(
     # guitar = dict(

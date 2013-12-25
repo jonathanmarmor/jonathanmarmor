@@ -107,7 +107,8 @@ def load_config():
             init_transposition = i['init_transposition'],
 
             clef = i.get('clef') or type_['clef'],
-            notation = i.get('notation') or type_['notation']
+            notation = i.get('notation') or type_['notation'],
+            transpose_from_middle_c = i.get('transpose_from_middle_c') or type_['transpose_from_middle_c']
         )
         config.instruments.append(inst)
 
@@ -181,7 +182,7 @@ def notate(music):
         # @todo: Automatically figure out the clef and transposition
         # based on instrument and content
         inst.clef = i['clef']
-        inst.transpose_from_middle_c = 'c'
+        inst.transpose_from_middle_c = i['transpose_from_middle_c']
 
         inst.notation = music[i['short']]
 
