@@ -62,7 +62,7 @@ def load_config():
     new_melody_lowest = shared_range_lowest + melody_transposition
     diff = lowest - new_melody_lowest
 
-    config.melody = [p + diff for p in config.melody]
+    config.melody = [p - diff for p in config.melody]
 
     print config.melody
 
