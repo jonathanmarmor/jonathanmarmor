@@ -18,3 +18,4 @@ ensemble:
         type: 'violin'
         init_transposition: -18
         start: 0
+parts: True

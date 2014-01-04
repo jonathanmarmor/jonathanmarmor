@@ -149,7 +149,7 @@ def write_json(music, path):
 
 
 def notate(music, instruments, subtitle, tempo_duration, tempo_bpm, parts=False,
-    midi=True, score=True, yaml=False, ly=True, pdf=True):
+    midi=True, score=True, yaml=False, ly=True, pdf=True, json=True):
     piece = Piece()
     piece.title = '\\"Jonathan Marmor\\"'
     piece.filename = 'jonathanmarmor'
@@ -185,7 +185,8 @@ def notate(music, instruments, subtitle, tempo_duration, tempo_bpm, parts=False,
     target = piece.write(path, yaml=yaml, ly=ly, pdf=pdf, midi=midi,
         parts=parts, score=score)
 
-    write_json(music, target['target'])
+    if json:
+        write_json(music, target['target'])
 
 
 def main(config_path='configs/default.yaml'):
@@ -197,9 +198,21 @@ def main(config_path='configs/default.yaml'):
     if config.get('play_synth'):
         synthesize(music, tempo_bpm)
 
-    if not config.get('make_notation') is False:
-        notate(music, instruments, config.get('subtitle', ''),
-            config['tempo_duration'], config['tempo_bpm'])
+    if config.get('make_notation', True):
+        notate(
+            music,
+            instruments,
+            config.get('subtitle', ''),
+            config['tempo_duration'],
+            config['tempo_bpm'],
+            parts=config.get('parts', False),
+            midi=config.get('midi', True),
+            score=config.get('score', True),
+            yaml=config.get('yaml', False),
+            ly=config.get('ly', True),
+            pdf=config.get('pdf', True),
+            json=config.get('json', True)
+        )
 
 
 if __name__ == '__main__':
