@@ -1,4 +1,4 @@
-subtitle: '2 Violins'
+subtitle: '3 Violins'
 melody: 'original 6'
 target_transposition: 74
 steps: 6
@@ -10,6 +10,10 @@ ensemble:
         type: 'violin'
         init_transposition: 6
         start: 2
+    -
+        type: 'violin'
+        init_transposition: -6
+        start: 1
     -
         type: 'violin'
         init_transposition: -18

@@ -1,13 +1,20 @@
-subtitle: ''
+subtitle: '3 Violins'
 melody: 'original 6'
+target_transposition: 74
 steps: 6
 tempo_duration: 4
 tempo_bpm: 380
-second_movement: False
+second_movement: True
 ensemble:
     -
         type: 'violin'
         init_transposition: 6
+        start: 2
     -
         type: 'violin'
         init_transposition: -6
+        start: 1
+    -
+        type: 'violin'
+        init_transposition: -18
+        start: 0

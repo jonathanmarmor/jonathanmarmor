@@ -329,6 +329,10 @@ class Note(object):
         else:
             return None
 
+    def __repr__(self):
+        # TODO Print more useful info
+        return str(int(self.raw_pitches[0].ps))
+
 
 class MakeLilyPond(object):
     def __init__(self, piece, ly_dir, score=True, parts=False, midi=False):

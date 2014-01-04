@@ -14,8 +14,8 @@ from jonathanmarmor import make_music
 
 # Some default melodies
 default_melodies = {
-    'original 6': [79, 85, 82, 77, 73, 75],
-    'original 5': [79, 82, 77, 73, 75],
+    'original 6': [6, 12, 9, 4, 0, 2],
+    'original 5': [6, 12, 9, 4, 0],
     # Harmonic series on G
     # 9 A +4
     # 7 F -31
@@ -37,47 +37,39 @@ def load_config(config):
         melody = default_melodies['original 6']
     melody = [float(n) for n in melody]
 
-    # evaluate registers
+    if 0 not in melody:
+        lowest = min(melody)
+        melody = [n - lowest for n in melody]
 
+    # find interval covered by melody
+    melody_interval = max(melody)
+
+    # evaluate registers
     ensemble = config['ensemble']
     for i in ensemble:
         i['range'] = set(range(int(known_instruments[i['type']]['lowest']), int(known_instruments[i['type']]['highest'] + 1)))
-
-    # find the range shared by all instruments
     a = ensemble[0]['range']
-    shared_range = a.intersection(*[i['range'] for i in ensemble[1:]])
+    shared_range =  a.intersection(*[i['range'] for i in ensemble[1:]])
 
-    # find interval covered by melody
-    lowest = min(melody)
-    highest = max(melody)
-    melody_interval = highest - lowest
+    # If the target_transposition isn't defined in the config pick one randomly
+    # in the ensemble's shared range
+    target_transposition = config.get('target_transposition')
+    if not target_transposition:
+        # find all possible transpositions of the melody that all instruments can play in unison
+        if melody_interval > len(shared_range):
+            raise Exception("These instruments don't have a shared register large enough to accommodate the melody.")
+        target_transposition = random.choice(list(shared_range)[:-int(melody_interval)])
+    melody = [n + target_transposition for n in melody]
 
-    # find all possible transpositions of the melody that all instruments can play in unison
-    shared_range_lowest = min(shared_range)
-    shared_range_highest = max(shared_range)
-    shared_range_interval = shared_range_highest - shared_range_lowest
-    if shared_range_interval < melody_interval:
-        raise Exception("These instruments don't have a shared register large enough to accommodate the melody.")
-    wiggle_room = shared_range_interval - melody_interval
+    # # Find all possible starting transpositions for all instruments
+    # # To make this easy, first implement with only tritone transpositions and octaves of that
+    # transposition_options = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]
+    # transposition_options = [t * 12 for t in transposition_options]
 
-    # pick one
-    melody_transposition = random.choice(range(int(wiggle_room)))
-
-    new_melody_lowest = shared_range_lowest + melody_transposition
-    diff = lowest - new_melody_lowest
-
-    melody = [p - diff for p in melody]
-
-
-    # Find all possible starting transpositions for all instruments
-    # To make this easy, first implement with only tritone transpositions and octaves of that
-    transposition_options = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]
-    transposition_options = [t * 12 for t in transposition_options]
-
-    # figure out which instruments can play which transpositions
-    # then assign a transposition per instrument
-    init_transpositions = [
-    ]
+    # # figure out which instruments can play which transpositions
+    # # then assign a transposition per instrument
+    # init_transpositions = [
+    # ]
 
 
 
@@ -103,13 +95,21 @@ def load_config(config):
         type_ = known_instruments[i['type']]
         ordinal = i.get('ordinal')
 
+        start = i.get('start')
+        if start is None:
+            start = starts[c]
+
+        init_transposition = i.get('init_transposition')
+        if init_transposition is None:
+            init_transposition = init_transpositions[c]
+
         inst = dict(
             full = '{} {}'.format(type_['full'], ordinal) if ordinal else type_['full'],
             short = '{}{}'.format(type_['short'], ordinal) if ordinal else type_['short'],
             midi = i.get('midi') or type_['midi'],
 
-            start = i.get('start') or starts[c],
-            init_transposition = i.get('init_transposition') or init_transpositions[c],
+            start = start,
+            init_transposition = init_transposition,
 
             clef = i.get('clef') or type_['clef'],
             notation = i.get('notation') or type_['notation'],
@@ -148,7 +148,8 @@ def write_json(music, path):
 #     synth.play(music, bpm)
 
 
-def notate(music, instruments, subtitle, tempo_duration, tempo_bpm):
+def notate(music, instruments, subtitle, tempo_duration, tempo_bpm, parts=False,
+    midi=True, score=True, yaml=False, ly=True, pdf=True):
     piece = Piece()
     piece.title = '\\"Jonathan Marmor\\"'
     piece.filename = 'jonathanmarmor'
@@ -181,24 +182,24 @@ def notate(music, instruments, subtitle, tempo_duration, tempo_bpm):
     if not os.path.exists(path):
         os.mkdir(path)
 
-    target = piece.write(path, yaml=False, ly=True, pdf=True, midi=True,
-        parts=False, score=True)
+    target = piece.write(path, yaml=yaml, ly=ly, pdf=pdf, midi=midi,
+        parts=parts, score=score)
 
     write_json(music, target['target'])
 
 
-def main(config_path='configs/default.yaml', make_notation=True):
+def main(config_path='configs/default.yaml'):
     config = yaml.load(open(config_path, 'r'))
     melody, instruments, instruments_by_start, steps = load_config(config)
 
-    music = make_music(melody, instruments, instruments_by_start, steps)
+    music = make_music(melody, instruments, instruments_by_start, steps, config['second_movement'])
 
-    # if play_synth:
-    #     synthesize(music, tempo_bpm)
+    if config.get('play_synth'):
+        synthesize(music, tempo_bpm)
 
-    if make_notation:
-        notate(music, instruments, config['subtitle'], config['tempo_duration'],
-            config['tempo_bpm'])
+    if not config.get('make_notation') is False:
+        notate(music, instruments, config.get('subtitle', ''),
+            config['tempo_duration'], config['tempo_bpm'])
 
 
 if __name__ == '__main__':

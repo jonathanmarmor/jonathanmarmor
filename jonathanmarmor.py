@@ -67,6 +67,21 @@ def turn(seq):
     return new
 
 
+def turn_n(seq, n):
+    """Return a list of new notes with with `seq` rotated so it starts on index `n`.
+
+    >>> pitches = range(6)
+    >>> seq = [Note(pitches=[p]) for p in pitches]
+    >>> result = turn_n(seq, 3)
+    >>> [n.raw_pitches[0].ps for n in result]
+    [3, 4, 5, 0, 1, 2]
+
+    """
+
+    new = copy_notes(seq)
+    return new[n:] + new[:n]
+
+
 def full_turn(seq):
     """
 
@@ -414,7 +429,7 @@ def section_E_part(seq, interval):
     return out
 
 
-def make_music(melody, instruments, instruments_by_start, steps):
+def make_music(melody, instruments, instruments_by_start, steps, second_movement=True):
     config_melody = melody[:]
 
     parts = {}
@@ -422,14 +437,10 @@ def make_music(melody, instruments, instruments_by_start, steps):
         parts[i['short']] = []
 
     melody = [Note(pitches=[p]) for p in config_melody]
-    turns = full_turn(melody)
+    # turns = full_turn(melody)
 
-    for t in turns:
-        start = config_melody.index(round(t[0].raw_pitches[0].ps, 2))
-
-        instrument = instruments_by_start.get(start)
-        if not instrument:
-            continue
+    for instrument in instruments:
+        t = turn_n(melody, instrument['start'])
         seq = transpose(t, instrument['init_transposition'])
 
         # Grow
@@ -448,22 +459,23 @@ def make_music(melody, instruments, instruments_by_start, steps):
         prev_seq = turn(prev_seq)
         parts[instrument['short']].extend(list(flatten(section_C_part(prev_seq))))
 
-        # # Pulse
-        # last_note = parts[instrument['short']][-1]
-        # pulse = [Note(pitches=[last_note.raw_pitches[0].ps])] * 32
-        # for n in pulse:
-        #     n.raw_duration = 1
-        # parts[instrument['short']].extend(pulse)
+        if second_movement:
+            # Pulse
+            last_note = parts[instrument['short']][-1]
+            pulse = [Note(pitches=[last_note.raw_pitches[0].ps])] * 32
+            for n in pulse:
+                n.raw_duration = 1
+            parts[instrument['short']].extend(pulse)
 
-        # # Grow
-        # last_pitch = parts[instrument['short']][-1].raw_pitches[0].ps
-        # index = config_melody.index(round(last_pitch, 2))
-        # new_melody = config_melody[index:] + config_melody[:index]
-        # new_seq = [Note(pitches=[p]) for p in new_melody]
-        # parts[instrument['short']].extend(list(flatten(section_D_part(new_seq))))
+            # Grow
+            last_pitch = parts[instrument['short']][-1].raw_pitches[0].ps
+            index = config_melody.index(round(last_pitch, 2))
+            new_melody = config_melody[index:] + config_melody[:index]
+            new_seq = [Note(pitches=[p]) for p in new_melody]
+            parts[instrument['short']].extend(list(flatten(section_D_part(new_seq))))
 
-        # # Slow, Modulate out
-        # parts[instrument['short']].extend(list(flatten(section_E_part(new_seq, instrument['init_transposition']))))
+            # Slow, Modulate out
+            parts[instrument['short']].extend(list(flatten(section_E_part(new_seq, instrument['init_transposition']))))
 
     return parts
 
