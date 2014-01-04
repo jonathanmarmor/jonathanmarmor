@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-"""Creates PDF music notataion from LilyPond files created by musicob.notation.
+"""Creates PDF music notataion from LilyPond files created by jonathanmarmor/notation.py.
 
 ly_dir:  The full path to the lilypond files used as input.
 pdf_dir:  The full path where pdf output files will be written.
@@ -42,10 +42,12 @@ def run_lilypond(in_file, pdf_dir):
 
 
 def cleanup(pdf_dir):
-    filenames = [f for f in os.listdir(pdf_dir) if f[-3:] == '.ps']
+    """Delete postscript files."""
+    filenames = [f for f in os.listdir(pdf_dir) if f.endswith('.ps')]
     for filename in filenames:
         to_delete = os.path.join(pdf_dir, filename)
         subprocess.Popen(['rm', to_delete], shell=False)
+
 
 def cli():
     import argparse

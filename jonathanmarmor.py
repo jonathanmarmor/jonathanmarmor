@@ -335,8 +335,8 @@ def transitions(seq, interval, steps):
     return out
 
 
-def section_B_part(seq, interval, config):
-    seqs = transitions(seq, interval, config.steps)
+def section_B_part(seq, interval, steps):
+    seqs = transitions(seq, interval, steps)
     out = []
     for i, seq in enumerate(seqs):
         new = arch(seq)
@@ -414,18 +414,20 @@ def section_E_part(seq, interval):
     return out
 
 
-def make_music(config):
+def make_music(melody, instruments, instruments_by_start, steps):
+    config_melody = melody[:]
+
     parts = {}
-    for i in config.instruments:
+    for i in instruments:
         parts[i['short']] = []
 
-    melody = [Note(pitches=[p]) for p in config.melody]
+    melody = [Note(pitches=[p]) for p in config_melody]
     turns = full_turn(melody)
 
     for t in turns:
-        start = config.melody.index(round(t[0].raw_pitches[0].ps, 2))
+        start = config_melody.index(round(t[0].raw_pitches[0].ps, 2))
 
-        instrument = config.instruments_by_start.get(start)
+        instrument = instruments_by_start.get(start)
         if not instrument:
             continue
         seq = transpose(t, instrument['init_transposition'])
@@ -435,7 +437,7 @@ def make_music(config):
 
         # Modulate in
         parts[instrument['short']].extend(
-            list(flatten(section_B_part(seq, instrument['interval'], config)))
+            list(flatten(section_B_part(seq, instrument['interval'], steps)))
         )
 
         # Shrink
@@ -455,8 +457,8 @@ def make_music(config):
 
         # # Grow
         # last_pitch = parts[instrument['short']][-1].raw_pitches[0].ps
-        # index = config.melody.index(round(last_pitch, 2))
-        # new_melody = config.melody[index:] + config.melody[:index]
+        # index = config_melody.index(round(last_pitch, 2))
+        # new_melody = config_melody[index:] + config_melody[:index]
         # new_seq = [Note(pitches=[p]) for p in new_melody]
         # parts[instrument['short']].extend(list(flatten(section_D_part(new_seq))))
 

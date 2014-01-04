@@ -4,12 +4,13 @@ import os
 import json
 import random
 from collections import Counter
+import yaml
+import sys
 
 from notation import Instrument, Movement, Piece
 # import synth
 from jonathanmarmor import make_music
 from known_instruments import known_instruments
-import config
 
 
 # Some default melodies
@@ -27,25 +28,27 @@ default_melodies = {
 }
 
 
-def load_config():
-    if config.melody in default_melodies:
-        config.melody = default_melodies[config.melody]
-    if not config.melody:
-        config.melody = default_melodies['original 6']
-    config.melody = [float(n) for n in config.melody]
+def load_config(config):
+    melody = config['melody']
+    if melody in default_melodies:
+        melody = default_melodies[melody]
+    if not melody:
+        melody = default_melodies['original 6']
+    melody = [float(n) for n in melody]
 
     # evaluate registers
 
-    for i in config.ensemble:
+    ensemble = config['ensemble']
+    for i in ensemble:
         i['range'] = set(range(int(known_instruments[i['type']]['lowest']), int(known_instruments[i['type']]['highest'] + 1)))
 
     # find the range shared by all instruments
-    a = config.ensemble[0]['range']
-    shared_range = a.intersection(*[i['range'] for i in config.ensemble[1:]])
+    a = ensemble[0]['range']
+    shared_range = a.intersection(*[i['range'] for i in ensemble[1:]])
 
     # find interval covered by melody
-    lowest = min(config.melody)
-    highest = max(config.melody)
+    lowest = min(melody)
+    highest = max(melody)
     melody_interval = highest - lowest
 
     # find all possible transpositions of the melody that all instruments can play in unison
@@ -62,7 +65,7 @@ def load_config():
     new_melody_lowest = shared_range_lowest + melody_transposition
     diff = lowest - new_melody_lowest
 
-    config.melody = [p - diff for p in config.melody]
+    melody = [p - diff for p in melody]
 
 
     # Find all possible starting transpositions for all instruments
@@ -82,20 +85,20 @@ def load_config():
 
     # Set instrument ordinals (eg, violin 1, violin 2)
     counter = Counter()
-    for i in config.ensemble:
+    for i in ensemble:
         counter[i['type']] += 1
         i['ordinal'] = counter[i['type']]
-    for i in config.ensemble:
+    for i in ensemble:
         if counter[i['type']] == 1:
             del i['ordinal']
 
     # TODO in the future, need to be able to have more than one inst starting on the same position
-    starts = random.sample(range(len(config.melody)), len(config.ensemble))
+    starts = random.sample(range(len(melody)), len(ensemble))
 
 
     # Flesh out instrument configs from defaults
-    config.instruments = []
-    for c, i in enumerate(config.ensemble):
+    instruments = []
+    for c, i in enumerate(ensemble):
         type_ = known_instruments[i['type']]
         ordinal = i.get('ordinal')
 
@@ -111,28 +114,19 @@ def load_config():
             notation = i.get('notation') or type_['notation'],
             transpose_from_middle_c = i.get('transpose_from_middle_c') or type_['transpose_from_middle_c']
         )
-        config.instruments.append(inst)
+        instruments.append(inst)
 
 
 
-    config.instruments_by_start = {i['start']:i for i in config.instruments}
+    instruments_by_start = {i['start']:i for i in instruments}
 
-    config.instruments_by_short_name = {i['short']:i for i in config.instruments}
+    steps = config['steps']
+    for i in instruments:
+        i['interval'] = -(float(i['init_transposition']) / steps)
 
-    for i in config.instruments:
-        i['interval'] = -(float(i['init_transposition']) / config.steps)
 
+    return melody, instruments, instruments_by_start, steps
 
-def run(play_synth, make_notation):
-    load_config()
-
-    music = make_music(config)
-
-    # if play_synth:
-    #     synthesize(music, config.tempo_bpm)
-
-    if make_notation:
-        notate(music)
 
 
 def write_json(music, path):
@@ -154,7 +148,7 @@ def write_json(music, path):
 #     synth.play(music, bpm)
 
 
-def notate(music):
+def notate(music, instruments, subtitle, tempo_duration, tempo_bpm):
     piece = Piece()
     piece.title = '\\"Jonathan Marmor\\"'
     piece.filename = 'jonathanmarmor'
@@ -164,27 +158,20 @@ def notate(music):
     mv = Movement()
     mv.number = 1
     mv.folder = 'mv{}'.format(mv.number)
-    mv.title = config.subtitle
-    mv.tempo_duration = config.tempo_duration
-    mv.tempo_bpm = config.tempo_bpm
+    mv.title = subtitle
+    mv.tempo_duration = tempo_duration
+    mv.tempo_bpm = tempo_bpm
     mv.instruments = []
 
-    insts = [i for i in config.instruments]
-
-    for i in insts:
+    for i in instruments:
         inst = Instrument()
         inst.name = i['full']
         inst.musician = i['full']
         inst.short_name = i['short']
         inst.midi_name = i['midi']
-
-        # @todo: Automatically figure out the clef and transposition
-        # based on instrument and content
         inst.clef = i['clef']
         inst.transpose_from_middle_c = i['transpose_from_middle_c']
-
         inst.notation = music[i['short']]
-
         mv.instruments.append(inst)
 
     piece.movements = [mv]
@@ -200,17 +187,22 @@ def notate(music):
     write_json(music, target['target'])
 
 
+def main(config_path='configs/default.yaml', make_notation=True):
+    config = yaml.load(open(config_path, 'r'))
+    melody, instruments, instruments_by_start, steps = load_config(config)
+
+    music = make_music(melody, instruments, instruments_by_start, steps)
+
+    # if play_synth:
+    #     synthesize(music, tempo_bpm)
+
+    if make_notation:
+        notate(music, instruments, config['subtitle'], config['tempo_duration'],
+            config['tempo_bpm'])
+
+
 if __name__ == '__main__':
-    # import argparse
-    # parser = argparse.ArgumentParser()
-
-    # parser.add_argument('-s', '--synth',
-    #     action='store_true', dest='play_synth', default=True)
-    # parser.add_argument('-n', '--notate',
-    #     action='store_true', dest='make_notation', default=False)
-    # args = parser.parse_args()
-
-    # run(args.synth, args.notate)
-
-    # run(play_synth=True, make_notation=False)
-    run(play_synth=False, make_notation=True)
+    if len(sys.argv) == 2:
+        main(sys.argv[1])
+    else:
+        main()
