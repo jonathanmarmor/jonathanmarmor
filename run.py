@@ -64,15 +64,16 @@ def load_config():
 
     config.melody = [p - diff for p in config.melody]
 
-    print config.melody
-
-
-
-
-
 
     # Find all possible starting transpositions for all instruments
     # To make this easy, first implement with only tritone transpositions and octaves of that
+    transposition_options = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]
+    transposition_options = [t * 12 for t in transposition_options]
+
+    # figure out which instruments can play which transpositions
+    # then assign a transposition per instrument
+    init_transpositions = [
+    ]
 
 
 
@@ -91,6 +92,7 @@ def load_config():
     # TODO in the future, need to be able to have more than one inst starting on the same position
     starts = random.sample(range(len(config.melody)), len(config.ensemble))
 
+
     # Flesh out instrument configs from defaults
     config.instruments = []
     for c, i in enumerate(config.ensemble):
@@ -102,9 +104,8 @@ def load_config():
             short = '{}{}'.format(type_['short'], ordinal) if ordinal else type_['short'],
             midi = i.get('midi') or type_['midi'],
 
-            # tmp
-            start = starts[c],
-            init_transposition = i['init_transposition'],
+            start = i.get('start') or starts[c],
+            init_transposition = i.get('init_transposition') or init_transpositions[c],
 
             clef = i.get('clef') or type_['clef'],
             notation = i.get('notation') or type_['notation'],
@@ -120,8 +121,6 @@ def load_config():
 
     for i in config.instruments:
         i['interval'] = -(float(i['init_transposition']) / config.steps)
-
-        print i['interval']
 
 
 def run(play_synth, make_notation):
