@@ -1,0 +1,36 @@
+piano:
+    full: Piano
+    short: pno
+    midi: acoustic grand
+    clef: treble
+    notation: standard
+    lowest: 24
+    highest: 96
+    transpose_from_middle_c: c
+violin:
+    full: Violin
+    short: vln
+    midi: violin
+    clef: treble
+    notation: standard
+    lowest: 55
+    highest: 92
+    transpose_from_middle_c: c
+viola:
+    full: Viola
+    short: vla
+    midi: viola
+    clef: alto
+    notation: standard
+    lowest: 48
+    highest: 85
+    transpose_from_middle_c: c
+cello:
+    full: Cello
+    short: vlc
+    midi: cello
+    clef: bass
+    notation: standard
+    lowest: 36
+    highest: 73
+    transpose_from_middle_c: c

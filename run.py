@@ -1,16 +1,15 @@
 #!/usr/bin/env python2.7
 
-import os
-import json
-import random
-from collections import Counter
-import yaml
 import sys
+import os
+import random
+import yaml
+import json
+from collections import Counter
 
 from notation import Instrument, Movement, Piece
-# import synth
 from jonathanmarmor import make_music
-from known_instruments import known_instruments
+# import synth
 
 
 # Some default melodies
@@ -29,6 +28,8 @@ default_melodies = {
 
 
 def load_config(config):
+    known_instruments = yaml.load(open('known_instruments.yaml', 'r'))
+
     melody = config['melody']
     if melody in default_melodies:
         melody = default_melodies[melody]
@@ -126,7 +127,6 @@ def load_config(config):
 
 
     return melody, instruments, instruments_by_start, steps
-
 
 
 def write_json(music, path):
