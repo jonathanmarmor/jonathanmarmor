@@ -23,7 +23,7 @@ default_melodies = {
     # 3 B +2
     # 1 G
     'spectral': [59.02, 64.69, 61.86, 57.04, 52.69, 55.0],
-    'random': [random.uniform(73.0, 85.0) for _ in range(6)]
+    'random': [random.uniform(0.0, 12.0) for _ in range(6)]
 }
 
 
@@ -61,6 +61,9 @@ def load_config(config):
         target_transposition = random.choice(list(shared_range)[:-int(melody_interval)])
     melody = [n + target_transposition for n in melody]
 
+    # target_lowest = min(melody)
+    # target_highest = max(melody)
+
     # # Find all possible starting transpositions for all instruments
     # # To make this easy, first implement with only tritone transpositions and octaves of that
     # transposition_options = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]
@@ -68,8 +71,11 @@ def load_config(config):
 
     # # figure out which instruments can play which transpositions
     # # then assign a transposition per instrument
-    # init_transpositions = [
-    # ]
+    # init_transposition_opts = {}
+    # for i in ensemble:
+    #     for trans in transposition_options:
+    #         if target_lowest + trans in i['range'] and target_highest + trans in i['range']:
+
 
 
 
@@ -100,8 +106,8 @@ def load_config(config):
             start = starts[c]
 
         init_transposition = i.get('init_transposition')
-        if init_transposition is None:
-            init_transposition = init_transpositions[c]
+        # if init_transposition is None:
+        #     init_transposition = init_transpositions[c]
 
         inst = dict(
             full = '{} {}'.format(type_['full'], ordinal) if ordinal else type_['full'],

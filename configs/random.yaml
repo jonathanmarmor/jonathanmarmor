@@ -1,0 +1,13 @@
+subtitle: 'Random'
+melody: 'random'
+steps: 6
+tempo_duration: 4
+tempo_bpm: 380
+second_movement: False
+ensemble:
+    -
+        type: 'violin'
+    -
+        type: 'viola'
+    -
+        type: 'cello'
