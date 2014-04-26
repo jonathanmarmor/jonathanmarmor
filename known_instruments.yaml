@@ -34,3 +34,12 @@ cello:
     lowest: 36
     highest: 73
     transpose_from_middle_c: c
+vibraphone:
+    full: Vibraphone
+    short: vib  # fix
+    midi: vibraphone  # fix
+    clef: treble
+    notation: standard
+    lowest: 40  # fix
+    highest: 90  # fix
+    transpose_from_middle_c: c
