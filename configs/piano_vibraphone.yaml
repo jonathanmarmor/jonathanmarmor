@@ -1,10 +1,10 @@
 subtitle: 'Piano & Vibraphone'
-melody: 'original 6'
-target_transposition: 65
+melody: 'original 5'
+target_transposition: 53
 steps: 6
 tempo_duration: 4
-tempo_bpm: 380
-second_movement: True
+tempo_bpm: 200
+second_movement: False
 ensemble:
     -
         type: 'vibraphone'
@@ -12,10 +12,11 @@ ensemble:
         start: 1
     -
         type: 'piano'
-        init_transposition: 30
+        init_transposition: 18
         start: 2
     -
         type: 'piano'
-        init_transposition: -30
+        clef: 'bass'
+        init_transposition: -18
         start: 0
 parts: True

@@ -231,7 +231,7 @@ movement = """
 		\\score {{
 			<<
 				\\set Score.autoBeaming = ##t
-				#(set-accidental-style 'modern 'Score)
+				\\accidentalStyle Score.neo-modern
 				\\override Score.Stem #'stemlet-length = #0.75
 				\\override Score.PaperColumn #'keep-inside-line = ##t
 				\\tempo {tempo_duration} = {tempo_bpm}
