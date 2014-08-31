@@ -6,10 +6,10 @@ tempo_duration: 4
 tempo_bpm: 200
 second_movement: False
 ensemble:
-    -
-        type: 'vibraphone'
-        init_transposition: 6
-        start: 1
+    # -
+    #     type: 'vibraphone'
+    #     init_transposition: 6
+    #     start: 1
     -
         type: 'piano'
         init_transposition: 18

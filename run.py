@@ -16,6 +16,8 @@ from jonathanmarmor import make_music
 default_melodies = {
     'original 6': [6, 12, 9, 4, 0, 2],
     'original 5': [6, 12, 9, 4, 0],
+    'another 5': [6, 9, 4, 0, 2],
+
     # Harmonic series on G
     # 9 A +4
     # 7 F -31
@@ -211,7 +213,7 @@ def main(config_path='configs/default.yaml'):
             config.get('subtitle', ''),
             config['tempo_duration'],
             config['tempo_bpm'],
-            parts=config.get('parts', False),
+            parts=config.get('parts', True),
             midi=config.get('midi', True),
             score=config.get('score', True),
             yaml=config.get('yaml', False),
