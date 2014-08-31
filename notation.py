@@ -361,8 +361,6 @@ class MakeLilyPond(object):
             os.mkdir(movement_dir)
             movement_string = templates.movement.format(
                 title=movement.title,
-                tempo_duration=movement.tempo_duration,
-                tempo_bpm=movement.tempo_bpm,
                 number=movement.number,
                 name=''
             )
@@ -373,7 +371,10 @@ class MakeLilyPond(object):
                     short_name=instrument.short_name,
                     midi_name=instrument.midi_name,
                     clef=instrument.clef,
-                    transpose_from_middle_c='c'
+                    transpose_from_middle_c='c',
+                    tempo_duration=movement.tempo_duration,
+                    tempo_bpm=movement.tempo_bpm
+
                 )
                 strings.append(instrument_string)
                 music_ly_filename = '{}_music.ly'.format(instrument.short_name)
@@ -412,8 +413,6 @@ class MakeLilyPond(object):
                     if instrument.musician == musician:
                         movement_string = templates.movement.format(
                             title=movement.title,
-                            tempo_duration=movement.tempo_duration,
-                            tempo_bpm=movement.tempo_bpm,
                             number=movement.number,
                             name=musician)
                         strings.append(movement_string)
@@ -423,7 +422,9 @@ class MakeLilyPond(object):
                             short_name=instrument.short_name,
                             midi_name=instrument.midi_name,
                             clef=instrument.clef,
-                            transpose_from_middle_c=instrument.transpose_from_middle_c)
+                            transpose_from_middle_c=instrument.transpose_from_middle_c,
+                            tempo_duration=movement.tempo_duration,
+                            tempo_bpm=movement.tempo_bpm)
                         strings.append(instrument_string)
 
                         music_ly_filename = '{}_music.ly'.format(movement.folder)
