@@ -5,6 +5,7 @@ For any six instruments that can play the written pitches.
 """
 
 import collections
+import collections.abc
 
 from notation import Note
 
@@ -235,8 +236,8 @@ def first(l):
     1
 
     """
-    if isinstance(l[0], collections.Iterable) \
-        and not isinstance(l[0], basestring):
+    if isinstance(l[0], collections.abc.Iterable) \
+        and not isinstance(l[0], str):
         return first(l[0])
     else:
         return l[0]
@@ -249,8 +250,8 @@ def last(l):
     12
 
     """
-    if isinstance(l[-1], collections.Iterable) \
-        and not isinstance(l[-1], basestring):
+    if isinstance(l[-1], collections.abc.Iterable) \
+        and not isinstance(l[-1], str):
         return last(l[-1])
     else:
         return l[-1]
@@ -265,8 +266,8 @@ def flatten(l):
 
     """
     for el in l:
-        if isinstance(el, collections.Iterable) \
-            and not isinstance(el, basestring):
+        if isinstance(el, collections.abc.Iterable) \
+            and not isinstance(el, str):
             for sub in flatten(el):
                 yield sub
         else:
@@ -413,7 +414,7 @@ def section_E_part(seq, interval):
     >>> pitches = [1, 2, 3, 4, 5, 6]
     >>> seq = [Note(pitches=[p]) for p in pitches]
     >>> result = section_E_part(seq, 30)
-    >>> [[n.raw_pitches[0].ps for n in notes] for notes in result]
+    >>> [[n.raw_pitches[0].ps for n in phrases[len(seq) - 1]] for phrases in result]
     [[1, 2, 3, 4, 5, 36], [36, 1, 2, 3, 4, 35], [35, 36, 1, 2, 3, 34], [34, 35, 36, 1, 2, 33], [33, 34, 35, 36, 1, 32], [32, 33, 34, 35, 36, 31]]
 
 

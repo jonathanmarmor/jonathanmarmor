@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import time
 import random
@@ -30,7 +30,7 @@ def play(piece, bpm):
 
     quarter = 60.0 / bpm  # set quarter note duration in seconds
 
-    reference_instrument = piece[piece.keys()[0]]
+    reference_instrument = piece[list(piece.keys())[0]]
     num_notes = len(reference_instrument)
 
     init_vol = 0.00001
