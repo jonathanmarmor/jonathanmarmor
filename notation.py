@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 """Utilities for serializing and notating music.
 
@@ -99,7 +99,7 @@ class Piece(object):
         f = open(piece_path, 'r')
         text = f.read()
         f.close()
-        yaml_data = yaml.load(text)
+        yaml_data = yaml.safe_load(text)
         self.title = yaml_data['title']
         self.filename = yaml_data['filename']
         self.composer = yaml_data['composer']
@@ -121,7 +121,7 @@ class Piece(object):
                 f = open(music_yaml_file_path, 'r')
                 text = f.read()
                 f.close()
-                instrument_data = yaml.load(text)
+                instrument_data = yaml.safe_load(text)
                 instrument.notation = []
                 for n in instrument_data:
                     note = Note(n)
@@ -192,7 +192,7 @@ class Piece(object):
         """
         piece_dict = self.dump()
         piece_path = os.path.join(yaml_dir, 'piece.yaml')
-        for mi, m in zip(range(len(self.movements)), self.movements):
+        for mi, m in zip(list(range(len(self.movements))), self.movements):
             for i in range(len(m.instruments)):
                 del piece_dict['movements'][mi]['instruments'][i]['notation']
         f = open(piece_path, 'w')

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -30,7 +30,7 @@ default_melodies = {
 
 
 def load_config(config):
-    known_instruments = yaml.load(open('known_instruments.yaml', 'r'))
+    known_instruments = yaml.safe_load(open('known_instruments.yaml', 'r'))
 
     melody = config['melody']
     if melody in default_melodies:
@@ -94,7 +94,7 @@ def load_config(config):
             del i['ordinal']
 
     # TODO in the future, need to be able to have more than one inst starting on the same position
-    starts = random.sample(range(len(melody)), len(ensemble))
+    starts = random.sample(list(range(len(melody))), len(ensemble))
 
 
     # Flesh out instrument configs from defaults
@@ -198,7 +198,7 @@ def notate(music, instruments, subtitle, tempo_duration, tempo_bpm, parts=False,
 
 
 def main(config_path='configs/default.yaml'):
-    config = yaml.load(open(config_path, 'r'))
+    config = yaml.safe_load(open(config_path, 'r'))
     melody, instruments, instruments_by_start, steps = load_config(config)
 
     music = make_music(melody, instruments, instruments_by_start, steps, config['second_movement'])

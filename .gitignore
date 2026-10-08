@@ -4,3 +4,6 @@ output/
 pip-log.txt
 pip-delete-this-directory.txt
 GOALS.txt
+
+__pycache__/
+.venv/
