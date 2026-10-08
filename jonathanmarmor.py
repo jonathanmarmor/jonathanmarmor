@@ -409,7 +409,7 @@ def section_D_part(seq):
     return section
 
 
-def section_E_part(seq, interval):
+def section_E_part(seq, interval, progressive_final_contraction=False):
     """
     >>> pitches = [1, 2, 3, 4, 5, 6]
     >>> seq = [Note(pitches=[p]) for p in pitches]
@@ -426,11 +426,20 @@ def section_E_part(seq, interval):
 
     for i, seq in enumerate(seqs):
         new = arch(seq, durs[i], durs[i + 1], durs[i + 2])
+        if progressive_final_contraction and i == len(seqs) - 1:
+            # The full six-note phrase ends on 8 eighth-note units.
+            # Every contraction ends one unit later: 9, 10, 11, 12, 13.
+            for phrase_index, phrase in enumerate(new[len(seq):]):
+                set_durations(phrase, (i + 2 + phrase_index) / 2.0,
+                              (i + 4 + phrase_index) / 2.0)
+            extra = copy_note(last(new))
+            extra.raw_duration = (i + len(seq) + 3) / 2.0
+            new.append([extra])
         out.append(new)
     return out
 
 
-def make_music(melody, instruments, instruments_by_start, steps, second_movement=True):
+def make_music(melody, instruments, instruments_by_start, steps, second_movement=True, progressive_final_contraction=False):
     config_melody = melody[:]
 
     parts = {}
@@ -476,7 +485,7 @@ def make_music(melody, instruments, instruments_by_start, steps, second_movement
             parts[instrument['short']].extend(list(flatten(section_D_part(new_seq))))
 
             # Slow, Modulate out
-            parts[instrument['short']].extend(list(flatten(section_E_part(new_seq, instrument['init_transposition']))))
+            parts[instrument['short']].extend(list(flatten(section_E_part(new_seq, instrument['init_transposition'], progressive_final_contraction))))
 
     return parts
 
