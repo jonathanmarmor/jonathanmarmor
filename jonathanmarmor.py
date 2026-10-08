@@ -6,6 +6,7 @@ For any six instruments that can play the written pitches.
 
 import collections
 import collections.abc
+import random
 
 from notation import Note
 
@@ -351,11 +352,24 @@ def transitions(seq, interval, steps):
     return out
 
 
-def section_B_part(seq, interval, steps):
+def section_B_part(seq, interval, steps, rhythmic_lengthening=None, rng=None):
     seqs = transitions(seq, interval, steps)
     out = []
     for i, seq in enumerate(seqs):
         new = arch(seq)
+        if rhythmic_lengthening:
+            start = rhythmic_lengthening['start_bar'] - 1
+            count = rhythmic_lengthening['bar_count']
+            index = i - start
+            if 0 <= index < count:
+                conversions = 1 + min(index, count - 1 - index)
+                eligible = [n for n in flatten(new) if n.raw_duration == .5]
+                if conversions > len(eligible):
+                    raise ValueError('Requested more conversions than available eighth notes')
+                if rng is None:
+                    raise ValueError('Rhythmic lengthening requires a seeded random generator')
+                for note in rng.sample(eligible, conversions):
+                    note.raw_duration = 1
         if i % (len(seq) + 1) == 0:
             first(new).bar_type = '||'
         out.append(new)
@@ -439,7 +453,7 @@ def section_E_part(seq, interval, progressive_final_contraction=False):
     return out
 
 
-def make_music(melody, instruments, instruments_by_start, steps, second_movement=True, progressive_final_contraction=False):
+def make_music(melody, instruments, instruments_by_start, steps, second_movement=True, progressive_final_contraction=False, rhythmic_lengthening=None):
     config_melody = melody[:]
 
     parts = {}
@@ -458,7 +472,8 @@ def make_music(melody, instruments, instruments_by_start, steps, second_movement
 
         # Modulate in
         parts[instrument['short']].extend(
-            list(flatten(section_B_part(seq, instrument['interval'], steps)))
+            list(flatten(section_B_part(seq, instrument['interval'], steps, rhythmic_lengthening,
+                                     random.Random(f"{rhythmic_lengthening['seed']}:{instrument['short']}") if rhythmic_lengthening else None)))
         )
 
         # Shrink

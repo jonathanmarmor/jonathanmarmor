@@ -101,3 +101,24 @@ python render.py --config configs/six_parts_microtonal_seven_steps.yaml --name J
 This separate preset divides the initial offsets by seven for the inward transition instead of six. The per-round shifts in cents, from part 1 to part 6, are +3000/7, +1800/7, +600/7, −600/7, −1800/7, and −3000/7. After seven rounds the same target pitch set is reached. The opening and progressive ending rhythm are preserved. The extra round naturally advances the melodic rotation once more, which changes the starting pitch/rotation of the subsequent shrinking and second-movement material.
 
 Fractional note JSON is retained. A 14-bit pitch bend with a ±2-semitone range represents pitches to within approximately 0.013 cents. Pitch bends are set before every note, including returning to center for integer pitches; the renderer does not round the melody to semitones. Integer-only parts retain their prior MIDI encoding. A compatible synth must honor pitch bend and RPN bend sensitivity when playing the MIDI.
+
+## Thirteen steps and independent random duration choices
+
+Two separate presets retain the same instruments, pans, 320 BPM, and approved ending:
+
+```sh
+python render.py --config configs/six_parts_microtonal_thirteen_steps.yaml --name Jonathan_Marmor_thirteen_steps_baseline_320bpm
+python render.py --config configs/six_parts_thirteen_steps_random_rhythm.yaml --name Jonathan_Marmor_thirteen_steps_random_rhythm_320bpm
+```
+
+The rhythmic version uses 21 consecutive full expansion/contraction figures starting at figure 3 within the inward-transposition section. This is the explicitly confirmed figure-based interpretation, rather than full transposition rounds (which each contain seven figures). Across figures 3–23, counts are 1, 2, …, 11, …, 2, 1.
+
+In each figure and each part, that many existing eighth notes are randomly selected without replacement and extended to quarter notes. Quarter notes already present are untouched. Each part has its own random generator, initialized from the saved seed and stable part identifier. The same seed reproduces the same choices. Because each part gains the same total duration per figure, their attacks diverge inside a figure but its endpoint remains aligned across the ensemble. The opening, pitch sequence, and second movement remain unchanged relative to the thirteen-step baseline.
+
+Configuration controls are `rhythmic_lengthening.start_bar` (one-based figure within the inward section), `bar_count`, and `seed`. Odd-length windows have one peak; even-length windows have two equal peak figures. Requests exceeding available eighth notes are rejected. The provided window extends the piece by 60.5 quarter-note beats (11.34375 seconds).
+
+The baseline audio runs approximately 10:16, and the rhythmic version 10:27, including three seconds of release.
+
+```sh
+python -m unittest -v test_ending.py test_microtonal.py test_rhythmic_lengthening.py
+```

@@ -13,7 +13,7 @@ def generate(config, from_pulses=False):
     instruments=[]
     for i,part in enumerate(config['ensemble']):
         instruments.append(dict(short=str(i+1),start=part['start'],init_transposition=part['init_transposition'],interval=-part['init_transposition']/config['steps']))
-    notes=make_music([x+config['target_transposition'] for x in melody],instruments,{i['start']:i for i in instruments},config['steps'],config.get('second_movement',True), config.get('progressive_final_contraction',False))
+    notes=make_music([x+config['target_transposition'] for x in melody],instruments,{i['start']:i for i in instruments},config['steps'],config.get('second_movement',True), config.get('progressive_final_contraction',False), config.get('rhythmic_lengthening'))
     first_movement = None
     if from_pulses:
         if not config.get('second_movement', True):
