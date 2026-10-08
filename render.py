@@ -6,18 +6,23 @@ import numpy as np
 import yaml
 from jonathanmarmor import make_music
 
-def generate(config):
+def generate(config, from_pulses=False):
     melodies={'original 6':[6,12,9,4,0,2], 'original 5':[6,12,9,4,0], 'another 5':[6,9,4,0,2]}
     melody=config['melody']
     if isinstance(melody,str): melody=melodies[melody]
     instruments=[]
     for i,part in enumerate(config['ensemble']):
         instruments.append(dict(short=str(i+1),start=part['start'],init_transposition=part['init_transposition'],interval=-part['init_transposition']/config['steps']))
-    notes=make_music([x+config['target_transposition'] for x in melody],instruments,{i['start']:i for i in instruments},config['steps'],config.get('second_movement',True))
+    notes=make_music([x+config['target_transposition'] for x in melody],instruments,{i['start']:i for i in instruments},config['steps'],config.get('second_movement',True), config.get('progressive_final_contraction',False))
+    first_movement = None
+    if from_pulses:
+        if not config.get('second_movement', True):
+            raise ValueError('--from-pulses requires second_movement: true')
+        first_movement = make_music([x+config['target_transposition'] for x in melody], instruments, {i['start']:i for i in instruments}, config['steps'], False)
     parts=[]
     for i,part in enumerate(config['ensemble']):
         assert -100<=part['pan']<=100 and 0<=part['midi_program']<=127
-        parts.append(dict(part=i+1,name=part['name'],program=part['midi_program'],pan=part['pan'],notes=[[n.raw_pitches[0].ps,n.raw_duration] for n in notes[str(i+1)]]))
+        parts.append(dict(part=i+1,name=part['name'],program=part['midi_program'],pan=part['pan'],notes=[[n.raw_pitches[0].ps,n.raw_duration] for n in (notes[str(i+1)][len(first_movement[str(i+1)]):] if from_pulses else notes[str(i+1)])]))
     return dict(bpm=config['tempo_bpm'],parts=parts)
 
 def render(music,base,audio,soundfont):
@@ -84,6 +89,7 @@ def main():
     parser.add_argument('--output',type=Path,default=Path('output'))
     parser.add_argument('--name',default='Jonathan_Marmor_six_parts_320bpm')
     parser.add_argument('--midi-only',action='store_true')
+    parser.add_argument('--from-pulses',action='store_true',help='Begin at the 32 pulses that start the second movement.')
     parser.add_argument('--soundfont',type=Path,default=Path('/usr/share/sounds/sf2/TimGM6mb.sf2'))
     args=parser.parse_args()
     if not args.midi_only:
@@ -96,7 +102,7 @@ def main():
     if config.get('tempo_duration',4)!=4:parser.error('This renderer expects quarter-note BPM (tempo_duration: 4).')
     if config['tempo_bpm']<=0 or config['steps']<=0:parser.error('Tempo and steps must be positive.')
     args.output.mkdir(parents=True,exist_ok=True)
-    music=generate(config);base=args.output/args.name
+    music=generate(config, args.from_pulses);base=args.output/args.name
     (args.output/(args.name+'_notes.json')).write_text(json.dumps(music))
     render(music,base,not args.midi_only,args.soundfont)
     print(f'Wrote files to {args.output.resolve()}')

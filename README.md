@@ -54,6 +54,7 @@ The current checkpoint has 2,651 notes per part, 2,099 quarter-note beats, and 3
 
 ```sh
 python -m doctest jonathanmarmor.py
+python -m unittest -v test_ending.py
 python -m compileall -q .
 python render.py --midi-only --output output/check
 ```
@@ -63,3 +64,30 @@ All 79 composition doctest examples pass. A pre-existing section E doctest was c
 ## Legacy notation and playback
 
 The original configs and notation workflow remain. Run `python run.py CONFIG` from this directory for the LilyPond workflow; LilyPond remains an external dependency. That PDF/notation path was not exercised in this checkpoint. `synth.py` is the legacy optional pyo playback path and is not required or validated by the new renderer.
+
+## Progressive final contraction
+
+Set `progressive_final_contraction: true` to advance the duration pair at every phrase ending during the contraction of the final bar, then repeat its final pitch once more. For six-note melodies, the final phrase durations in eighth-note units are:
+
+```text
+1:       7
+12:      6,7
+123:     6,6,7
+1234:    6,6,6,7
+12345:   6,6,6,6,7
+123456:  6,6,6,6,6,8
+23456:   7,7,7,7,9
+3456:    8,8,8,10
+456:     9,9,11
+56:      10,12
+6:       13
+extra 6: 14
+```
+
+The flag defaults to false for older configs, preserving the prior ending. It is enabled in the current six-part preset. To audition from the 32 pulses at the start of the second movement:
+
+```sh
+python render.py --from-pulses --name Jonathan_Marmor_second_half_new_ending
+```
+
+The second-movement excerpt includes 474 notes per part and 670.5 quarter-note beats (125.71875 seconds at 320 BPM), plus a three-second audio release tail.
