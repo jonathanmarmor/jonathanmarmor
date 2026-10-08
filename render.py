@@ -10,15 +10,21 @@ def generate(config, from_pulses=False):
     melodies={'original 6':[6,12,9,4,0,2], 'original 5':[6,12,9,4,0], 'another 5':[6,9,4,0,2]}
     melody=config['melody']
     if isinstance(melody,str): melody=melodies[melody]
+    progress = config.get('inward_progress')
+    if progress is not None:
+        if len(progress) != config['steps'] + 1 or not math.isclose(progress[0],0) or not math.isclose(progress[-1],1):
+            raise ValueError('inward_progress must have steps+1 values, starting at 0 and ending at 1')
+        if not all(math.isfinite(x) for x in progress) or any(b <= a for a,b in zip(progress,progress[1:])):
+            raise ValueError('inward_progress must be finite and strictly increasing')
     instruments=[]
     for i,part in enumerate(config['ensemble']):
         instruments.append(dict(short=str(i+1),start=part['start'],init_transposition=part['init_transposition'],interval=-part['init_transposition']/config['steps']))
-    notes=make_music([x+config['target_transposition'] for x in melody],instruments,{i['start']:i for i in instruments},config['steps'],config.get('second_movement',True), config.get('progressive_final_contraction',False))
+    notes=make_music([x+config['target_transposition'] for x in melody],instruments,{i['start']:i for i in instruments},config['steps'],config.get('second_movement',True), config.get('progressive_final_contraction',False), progress)
     first_movement = None
     if from_pulses:
         if not config.get('second_movement', True):
             raise ValueError('--from-pulses requires second_movement: true')
-        first_movement = make_music([x+config['target_transposition'] for x in melody], instruments, {i['start']:i for i in instruments}, config['steps'], False)
+        first_movement = make_music([x+config['target_transposition'] for x in melody], instruments, {i['start']:i for i in instruments}, config['steps'], False, inward_progress=progress)
     parts=[]
     for i,part in enumerate(config['ensemble']):
         assert -100<=part['pan']<=100 and 0<=part['midi_program']<=127
