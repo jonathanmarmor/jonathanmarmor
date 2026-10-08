@@ -44,7 +44,7 @@ The initial six-part checkpoint uses the original six-note melody, 320 quarter-n
 | 5 | Flute | 60L | 73 |
 | 6 | Piano | 20R | 0 |
 
-Pan values in the config range from −100 (left) to +100 (right). MIDI program numbers are zero-based. Specify a named built-in melody (`original 6`, `original 5`, `another 5`) or a list of semitone offsets. The direct MIDI renderer requires resulting pitches to be integers from 0 through 127; it does not implement microtonal pitch bends. Keep the ensemble at 9 parts or fewer; this workflow is validated with six parts.
+Pan values in the config range from −100 (left) to +100 (right). MIDI program numbers are zero-based. Specify a named built-in melody (`original 6`, `original 5`, `another 5`) or a list of semitone offsets. The direct MIDI renderer accepts fractional pitches from 0 through 127. Microtonal parts use a nearest MIDI note plus per-note pitch bends; RPN 0 explicitly sets a ±2-semitone bend range for each part. Each part is monophonic and uses its own MIDI channel. Keep the ensemble at 9 parts or fewer; this workflow is validated with six parts.
 
 Audio is rendered one instrument at a time using FluidSynth. Reverb and chorus are disabled, and MIDI effects sends are zero. Each instrument is collapsed to mono before equal-power panning so hard left/right positions remain exact. Static gain balances RMS between parts; global gain prevents clipping. Natural instrument envelopes and release remain. There are no additional effects. Changing soundfonts or synth versions may change the sound. The MIDI stores instrument and pan choices, but its sound depends on the playback synth.
 
@@ -54,7 +54,7 @@ The current checkpoint has 2,651 notes per part, 2,099 quarter-note beats, and 3
 
 ```sh
 python -m doctest jonathanmarmor.py
-python -m unittest -v test_ending.py
+python -m unittest -v test_ending.py test_microtonal.py
 python -m compileall -q .
 python render.py --midi-only --output output/check
 ```
@@ -91,3 +91,13 @@ python render.py --from-pulses --name Jonathan_Marmor_second_half_new_ending
 ```
 
 The second-movement excerpt includes 474 notes per part and 670.5 quarter-note beats (125.71875 seconds at 320 BPM), plus a three-second audio release tail.
+
+## Seven-step microtonal inward transition
+
+```sh
+python render.py --config configs/six_parts_microtonal_seven_steps.yaml --name Jonathan_Marmor_microtonal_seven_steps_320bpm
+```
+
+This separate preset divides the initial offsets by seven for the inward transition instead of six. The per-round shifts in cents, from part 1 to part 6, are +3000/7, +1800/7, +600/7, −600/7, −1800/7, and −3000/7. After seven rounds the same target pitch set is reached. The opening and progressive ending rhythm are preserved. The extra round naturally advances the melodic rotation once more, which changes the starting pitch/rotation of the subsequent shrinking and second-movement material.
+
+Fractional note JSON is retained. A 14-bit pitch bend with a ±2-semitone range represents pitches to within approximately 0.013 cents. Pitch bends are set before every note, including returning to center for integer pitches; the renderer does not round the melody to semitones. Integer-only parts retain their prior MIDI encoding. A compatible synth must honor pitch bend and RPN bend sensitivity when playing the MIDI.

@@ -25,6 +25,14 @@ def generate(config, from_pulses=False):
         parts.append(dict(part=i+1,name=part['name'],program=part['midi_program'],pan=part['pan'],notes=[[n.raw_pitches[0].ps,n.raw_duration] for n in (notes[str(i+1)][len(first_movement[str(i+1)]):] if from_pulses else notes[str(i+1)])]))
     return dict(bpm=config['tempo_bpm'],parts=parts)
 
+def encode_pitch(pitch):
+    """Return a nearest MIDI note and bend with a +/-2-semitone range."""
+    if not math.isfinite(pitch) or not 0 <= pitch <= 127:
+        raise ValueError(f'Pitch outside MIDI range: {pitch}')
+    note = int(math.floor(pitch + 0.5))
+    bend = round(8192 + (pitch - note) * 8192 / 2)
+    return note, bend
+
 def render(music,base,audio,soundfont):
     p=base.parent;bpm=music['bpm'];ppq=960;sr=44100
     temp_handle=tempfile.TemporaryDirectory(prefix="marmor-render-")
@@ -48,10 +56,20 @@ def render(music,base,audio,soundfont):
         pan=round(64+part['pan']*(.64 if part['pan']<0 else .63))
         ev=[(0,b'\xff\x03'+vlq(len(name))+name),(0,bytes([0xc0+ch,part['program']]))]
         for cc,val in [(10,pan),(7,100),(11,127),(91,0),(93,0)]:ev.append((0,bytes([0xb0+ch,cc,val])))
+        microtonal = any(not math.isclose(pitch, round(pitch), abs_tol=1e-9, rel_tol=0)
+                         for pitch, _ in part['notes'])
+        if microtonal:
+            # RPN 0 explicitly sets each voice's pitch-bend range to +/-2 semitones.
+            for cc, val in [(101,0),(100,0),(6,2),(38,0),(101,127),(100,127)]:
+                ev.append((0, bytes([0xb0+ch, cc, val])))
         beat=0
         for pitch,dur in part['notes']:
-            assert pitch==int(pitch) and 0<=pitch<=127 and dur>0
-            ev.extend([(round(beat*ppq),bytes([0x90+ch,int(pitch),85])),(round((beat+.94*dur)*ppq),bytes([0x80+ch,int(pitch),0]))]);beat+=dur
+            assert math.isfinite(dur) and dur > 0
+            note, bend = encode_pitch(pitch)
+            tick = round(beat*ppq)
+            if microtonal:
+                ev.append((tick, bytes([0xe0+ch, bend & 127, bend >> 7])))
+            ev.extend([(tick,bytes([0x90+ch,note,85])),(round((beat+.94*dur)*ppq),bytes([0x80+ch,note,0]))]);beat+=dur
         ev.append((round(beat*ppq),bytes([0xb0+ch,123,0])))
         tracks.append(track(ev))
         if audio:
@@ -73,6 +91,7 @@ def render(music,base,audio,soundfont):
             print(f"Rendered {ch+1}: {part['name']}",flush=True)
             stemmid.unlink();stemwav.unlink()
     base.with_suffix('.mid').write_bytes(midi(tracks))
+    temp_handle.cleanup()
     if not audio:
         return
     peak=float(abs(mix).max());mix*=.9/max(peak,.9)
