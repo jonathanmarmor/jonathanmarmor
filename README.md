@@ -2,6 +2,40 @@
 
 A piece of music by Jonathan Marmor (1995–2000), for six instruments that can play the written pitches.
 
+## Harmony and timbre exploration
+
+```sh
+python harmony_analysis.py --output output/harmony
+python harmony_audition.py output/harmony
+python -m unittest -v test_harmony_analysis.py test_harmony_audition.py
+```
+
+The analyzer caches 36 voice/start streams, screens all 720 starting permutations,
+and evaluates 24 deterministic synthetic sound palettes on eight contrasting
+assignments. Outputs include all-assignment summaries, annotated event data,
+inward transposition comparisons, initial cyclic chords, ending phrases, and all
+15 voice-pair interactions. The audition command makes five dry stereo MP3/WAV
+montages and `REPORT.md`; FFmpeg is required. Optional `--plots` needs matplotlib
+(`python -m pip install matplotlib`) and makes a descriptor comparison figure.
+
+Round-entry shock has separate descriptors for the actual chord-to-chord jump,
+departure from the previous cycle, and a matched comparison against the same
+chord without its newly introduced transposition. Cluster descriptors distinguish
+unisons, density, and isolation. Harmonic-fit and spectral-roughness heuristics
+are documented in the report; they are not validated listener ratings or a
+combined artistic-quality score. Ties are retained in the CSV; representative
+selection is deterministic and does not imply unique optima.
+
+Sound families (`pure`, `warm`, `rich`, `odd`, `bell`, `pluck`) have explicit
+partial/amplitude and envelope definitions. The analysis uses equal reference
+spectral RMS with the same 19,845 Hz band limit as the 44.1 kHz auditions.
+Static spectral scores exclude release overlap, within-voice inharmonic
+roughness, masking, and binaural perception. The auditions preserve natural
+envelopes and the configured pans, with one shared gain across clips and no
+effects. They explore sound properties rather than selecting final instruments.
+Fractional absolute pitches are retained; alternative six-note inward schedules
+can be passed with `--config`, and rhythmic annotation alignment is checked.
+
 This branch preserves the composition algorithm, ports the working code to Python 3, and adds direct MIDI export and dry sampled audio rendering without LilyPond or pyo.
 
 ## Quick start
