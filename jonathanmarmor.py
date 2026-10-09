@@ -333,7 +333,7 @@ def one_transition(seq, interval):
     return out
 
 
-def transitions(seq, interval, steps):
+def transitions(seq, interval, steps, intervals=None):
     """
     >>> pitches = [1, 2, 3]
     >>> seq = [Note(pitches=[p]) for p in pitches]
@@ -344,15 +344,15 @@ def transitions(seq, interval, steps):
     """
     out = []
     for x in range(steps):
-        out.extend(one_transition(seq, interval))
+        out.extend(one_transition(seq, intervals[x] if intervals is not None else interval))
         # Turn an extra time
         out.append(turn(out[-1]))
         seq = turn(out[-1])
     return out
 
 
-def section_B_part(seq, interval, steps):
-    seqs = transitions(seq, interval, steps)
+def section_B_part(seq, interval, steps, intervals=None):
+    seqs = transitions(seq, interval, steps, intervals)
     out = []
     for i, seq in enumerate(seqs):
         new = arch(seq)
@@ -439,7 +439,7 @@ def section_E_part(seq, interval, progressive_final_contraction=False):
     return out
 
 
-def make_music(melody, instruments, instruments_by_start, steps, second_movement=True, progressive_final_contraction=False):
+def make_music(melody, instruments, instruments_by_start, steps, second_movement=True, progressive_final_contraction=False, inward_progress=None):
     config_melody = melody[:]
 
     parts = {}
@@ -458,7 +458,8 @@ def make_music(melody, instruments, instruments_by_start, steps, second_movement
 
         # Modulate in
         parts[instrument['short']].extend(
-            list(flatten(section_B_part(seq, instrument['interval'], steps)))
+            list(flatten(section_B_part(seq, instrument['interval'], steps,
+                                      [-instrument['init_transposition'] * (b-a) for a,b in zip(inward_progress,inward_progress[1:])] if inward_progress is not None else None)))
         )
 
         # Shrink

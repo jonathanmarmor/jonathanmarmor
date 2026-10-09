@@ -101,3 +101,22 @@ python render.py --config configs/six_parts_microtonal_seven_steps.yaml --name J
 This separate preset divides the initial offsets by seven for the inward transition instead of six. The per-round shifts in cents, from part 1 to part 6, are +3000/7, +1800/7, +600/7, −600/7, −1800/7, and −3000/7. After seven rounds the same target pitch set is reached. The opening and progressive ending rhythm are preserved. The extra round naturally advances the melodic rotation once more, which changes the starting pitch/rotation of the subsequent shrinking and second-movement material.
 
 Fractional note JSON is retained. A 14-bit pitch bend with a ±2-semitone range represents pitches to within approximately 0.013 cents. Pitch bends are set before every note, including returning to center for integer pitches; the renderer does not round the melody to semitones. Integer-only parts retain their prior MIDI encoding. A compatible synth must honor pitch bend and RPN bend sensitivity when playing the MIDI.
+
+## One 12-ET round, then six remaining rounds
+
+These two presets keep the first inward shift identical to the six-round version: each starting offset is reduced by one sixth, so the inner voices shift by a semitone. Both then use six further rounds to converge. Neither uses the abandoned random rhythmic-lengthening experiment.
+
+```sh
+python render.py --config configs/six_parts_six_then_six_equal.yaml --name Jonathan_Marmor_equal_remaining_steps_320bpm
+python render.py --config configs/six_parts_six_then_six_quadratic.yaml --name Jonathan_Marmor_quadratic_convergence_320bpm
+```
+
+`inward_progress` specifies normalized cumulative progress at rounds 0–7, with initial 0, first-round 1/6, and destination 1. For equal remaining shifts, progress after round n is `(5*n+1)/36` for n=1…7. For the simplest quadratic through the original, first-round, and destination anchors, progress is `n*(43-n)/252` for n=0…7. Every voice scales the same progress by its own total distance. These are discrete note transpositions; the curve is not played as a glissando.
+
+For an inner voice traveling 600 cents, the equal remaining increments are 100 then six times 83.333333 cents. The quadratic increments are approximately 100, 95.238095, 90.476190, 85.714286, 80.952381, 76.190476, and 71.428571 cents. The original opening, timing, sound assignments, pans, and approved ending remain. Both audio files run about 7:11.
+
+Older configurations without `inward_progress` retain their existing equal-step behavior. Schedules must have steps+1 finite, strictly increasing values with endpoints 0 and 1.
+
+```sh
+python -m unittest -v test_ending.py test_microtonal.py test_convergence_curves.py
+```

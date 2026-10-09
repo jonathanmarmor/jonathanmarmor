@@ -1,0 +1,48 @@
+subtitle: First 12-ET round, then quadratic convergence
+melody: original 6
+target_transposition: 66
+steps: 7
+tempo_duration: 4
+tempo_bpm: 320
+second_movement: true
+progressive_final_contraction: true
+ensemble:
+- name: Bassoon
+  start: 0
+  init_transposition: -30
+  midi_program: 70
+  pan: -20
+- name: Clean Electric Guitar
+  start: 1
+  init_transposition: -18
+  midi_program: 27
+  pan: 60
+- name: Clarinet
+  start: 2
+  init_transposition: -6
+  midi_program: 71
+  pan: -100
+- name: Harp
+  start: 3
+  init_transposition: 6
+  midi_program: 46
+  pan: 100
+- name: Flute
+  start: 4
+  init_transposition: 18
+  midi_program: 73
+  pan: -60
+- name: Piano
+  start: 5
+  init_transposition: 30
+  midi_program: 0
+  pan: 20
+inward_progress:
+- 0.0
+- 0.16666666666666666
+- 0.3253968253968254
+- 0.47619047619047616
+- 0.6190476190476191
+- 0.753968253968254
+- 0.8809523809523809
+- 1.0
